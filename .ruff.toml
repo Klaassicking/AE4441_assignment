@@ -1,0 +1,75 @@
+line-length = 150
+
+[lint]
+select = [
+    "F", # pyflakes
+    "E", # pycodestyle (Errors)
+    "W", # pycodestyle (Warnings)
+    "C90", # mccabe (complexity)
+    "I", # isort
+    "N", # pep8 naming
+    "D", # pydocstyle
+    "UP", # pyupgrade
+    "ANN", # flake8-annotations
+    "ASYNC", # flake8-async
+    "A", # flake8-builtins
+    "COM", # flake8-commas
+    "C4", # flake8-comprehensions
+    "DTZ", # flake8-datetimez
+    "EM", # flake8-errmsg
+    "EXE", # flake8-executable
+    "ISC", # flake8-implicit-str-concat
+    "ICN", # flake8-import-conventions
+    "INP", # flake8-no-pep420
+    "PIE", # flake8-pie
+    "T20", # flake8-print
+    "PYI", # flake8-pyi
+    "PT", # flake8-pytest-style
+    "Q", # flake8-quotes
+    "RSE", # flake8-raise
+    "RET", # flake8-return
+    "SLF", # flake8-self
+    "SLOT", # flake8-slot
+    "SIM", # flake8-simplify
+    "TID", # flake8-tidy-imports
+    "INT", # flake8-gettext
+    "ARG", # flake8-unused-arguments
+    "TD", # flake8-todos
+    "FIX", # flake8-fix-me
+    "ERA", # eradicate
+    "PD", # pandas-vet
+    "PGH", # pygrep-hooks
+    "PL", # pylint
+    "TRY", # tryceratops
+    "FLY", # flyint
+    "NPY", # NumPy-specific rules
+    "AIR", # Airflow
+    "PERF", # Perflint
+    "RUF", # Ruff-specific rules
+]
+ignore = [
+    # pydocstyle
+    "D401", # non-imperative-mood -> DO NOT REMOVE
+
+    # flake8-commas
+    "COM812", # missing-trailing-comma -> DO NOT REMOVE
+
+    # flake8-implicit-str-concat (ISC)
+    "ISC001", # implicit-str-concat-in-sequence -> DO NOT REMOVE
+
+    # flake8-annotations
+    "ANN003", # missing-type-kwargs -> DO NOT REMOVE
+    "ANN101", # missing-type-self -> DO NOT REMOVE
+    "ANN102", # missing-type-cls -> DO NOT REMOVE
+]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+[lint.pylint]
+max-args = 7
+
+[lint.pydocstyle]
+convention = "numpy"
