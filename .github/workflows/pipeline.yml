@@ -31,7 +31,7 @@ jobs:
 
       - name: Run MyPy static code analysis
         run: |
-          python -m mypy app --ignore-missing-imports
+          python -m mypy main_code --ignore-missing-imports
 
       - name: Run tests
         run: |
