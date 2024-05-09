@@ -7,6 +7,7 @@ import networkx as nx
 from icecream import ic
 from prettytable import PrettyTable
 
+from exports import FIGURE_PATH
 from main_code.set_params import NetworkParameters
 
 
@@ -94,7 +95,7 @@ class AcyclicNetworkGenerator:
         refueling_point_color_map = ["seagreen" if self.G.nodes[node].get("refueling_point", False) else "tomato" for node in self.G.nodes]
         nx.draw(self.G, pos, with_labels=True, font_weight="bold", node_size=700, node_color=refueling_point_color_map, font_size=8)
         nx.draw_networkx_edge_labels(self.G, pos, edge_labels=edge_labels, font_color="powderblue", font_size=7)
-        plt.show()
+        plt.savefig(FIGURE_PATH / "acyclic_network.png")
 
     def create_cost_table(self) -> PrettyTable:
         """

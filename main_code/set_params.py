@@ -10,7 +10,7 @@ class NetworkParameters:
     network_size: int = 20
     psi: float = 1600 / 18000
     initial_upper_bound: int = 6000
-    force_max: int = 26000
+    fuel_capacity: int = 26000
     w1: int = 1
     w2: int = 100
     m: int = 5  # Lexicographic frequency
