@@ -1,6 +1,7 @@
 """Module for the optimisation model class."""
 
 from gurobipy import GRB, Model, quicksum, tupledict
+from icecream import ic
 
 from main_code.model_variables import ModelVariables
 from main_code.network import AcyclicNetworkGenerator
@@ -39,6 +40,7 @@ class OptimisationModel:
         f = self.model.addVars(self.variables.time_steps, vtype=GRB.CONTINUOUS, name="F")
         return x, f
 
+    # <editor-fold desc="Path finding constraints">
     def _create_constraint_1(self) -> None:
         for tau in self.variables.time_steps:
             self.model.addConstr(
@@ -47,6 +49,56 @@ class OptimisationModel:
                 else quicksum(self.X["s", j, tau] for j in self.variables.nodes if ("s", j) in self.variables.arcs) == 0,
                 name="Start_node_s",
             )
+
+    def _create_constraint_2(self) -> None:
+        for i in self.variables.nodes - {"s", "t"}:
+            for tau in self.variables.time_steps[:-1]:
+                self.model.addConstr(
+                    quicksum(self.X[i, j, tau + 1] for j in self.variables.nodes if (i, j) in self.variables.arcs)
+                    - quicksum(self.X[j, i, tau] for j in self.variables.nodes if (j, i) in self.variables.arcs)
+                    == 0,
+                    name="Incoming=outgoing",
+                )
+
+    def _create_constraint_3(self) -> None:
+        # Constraint 3
+        self.model.addConstr(
+            quicksum(
+                self.X[i, "t", tau] for i in (self.variables.nodes - {"t"}) for tau in self.variables.time_steps if (i, "t") in self.variables.arcs
+            )
+            == 1,
+            name="goal_node_t",
+        )
+
+    # </editor-fold>
+
+    # <editor-fold desc="Refueling constraints">
+    def _create_constraint_4(self) -> None:
+        self.model.addConstr(self.F[1] == self.params.fuel_capacity, name="InitialFuel")
+
+    def _create_constraint_5(self) -> None:
+        # Constraint 5
+        for tau in self.variables.time_steps[1:]:
+            self.model.addConstr(
+                self.F[tau]
+                <= self.F[tau - 1]
+                - quicksum(self.variables.fij[i, j] * self.X[i, j, tau - 1] for i, j in self.variables.arcs if j in self.variables.nodes)
+                + quicksum(self.params.fuel_capacity * self.X[i, j, tau - 1] for i, j in self.variables.arcs if j in self.variables.nodes_refuel),
+                name=f"fuel_evolution_{tau}",
+            )
+
+    def _create_constraint_6(self) -> None:
+        pass
+
+    def _create_constraint_7(self) -> None:
+        # Constraint 7
+        for tau in self.variables.time_steps[1:]:
+            self.model.addConstr(
+                self.F[tau] - quicksum(self.variables.fij[i, j] * self.X[i, j, tau] for i, j in self.variables.arcs) >= 0,
+                name=f"fuel_non_negative_{tau}",
+            )
+
+    # </editor-fold>
 
     def _create_objective(self) -> None:
         cost = self.params.w1 * quicksum(
@@ -60,9 +112,29 @@ class OptimisationModel:
     def solve(self) -> None:
         """Solve the optimisation model."""
         self._create_constraint_1()
+        self._create_constraint_2()
+        self._create_constraint_3()
+        self._create_constraint_4()
+        self._create_constraint_5()
+        self._create_constraint_6()
+        self._create_constraint_7()
         self._create_objective()
         self.model.optimize()
 
+        # Check if the model is infeasible
+        if self.model.status == GRB.Status.INFEASIBLE:
+            msg = "Model is infeasible."
+            raise ValueError(msg)
 
-optimisation_model = OptimisationModel()
-optimisation_model.solve()
+    def results(self) -> None:
+        """Print the results of the optimisation model."""
+        if self.model.status == GRB.Status.OPTIMAL:
+            ic("Optimal objective value:", self.model.objVal)
+            ic("Optimal solution:")
+            nonzero_values = {var.VarName: var.X for var in self.model.getVars() if abs(var.X) != 0}
+            sorted_nonzero_values = dict(
+                sorted(nonzero_values.items(), key=lambda item: int(item[0].split(",")[2][:-1]) if "," in item[0] else float("inf"))
+            )
+
+            for var_name, value in sorted_nonzero_values.items():
+                ic(f"{var_name}: {value}")

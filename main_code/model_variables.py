@@ -27,9 +27,9 @@ class ModelVariables:
         Tuple[Set[Any], Set[Any]]
             Tuple containing refueling point nodes (NF) and non-refueling point nodes (NNF).
         """
-        nf = {node for node, attrs in self.graph.nodes(data=True) if attrs.get("refueling_point", False)}
-        nnf = {node for node in self.graph.nodes() if node not in nf}
-        return nf, nnf
+        nodes_refueling = {node for node, attrs in self.graph.nodes(data=True) if attrs.get("refueling_point", False)}
+        nodes_not_refueling = {node for node in self.graph.nodes() if node not in nodes_refueling}
+        return nodes_refueling, nodes_not_refueling
 
     def _calculate_edge_costs(self) -> dict[tuple[Any, Any], float]:
         """
