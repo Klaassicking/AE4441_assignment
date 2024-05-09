@@ -25,9 +25,9 @@ class NetworkModel:
         Tuple[Set[Any], Set[Any]]
             Tuple containing refueling point nodes (NF) and non-refueling point nodes (NNF).
         """
-        NF = {node for node, attrs in self.graph.nodes(data=True) if attrs.get("refueling_point", False)}
-        NNF = {node for node in self.graph.nodes() if node not in NF}
-        return NF, NNF
+        nf = {node for node, attrs in self.graph.nodes(data=True) if attrs.get("refueling_point", False)}
+        nnf = {node for node in self.graph.nodes() if node not in nf}
+        return nf, nnf
 
     def _calculate_edge_costs(self) -> dict[tuple[Any, Any], float]:
         """
@@ -50,5 +50,3 @@ class NetworkModel:
             Dictionary mapping each edge (u, v) to its fuel parameter.
         """
         return {(u, v): attrs["fuel"] for u, v, attrs in self.graph.edges(data=True)}
-
-
