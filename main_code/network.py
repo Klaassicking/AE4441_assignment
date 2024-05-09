@@ -4,7 +4,6 @@ import random
 
 import matplotlib.pyplot as plt
 import networkx as nx
-from icecream import ic
 from prettytable import PrettyTable
 
 from exports import FIGURE_PATH
@@ -133,5 +132,3 @@ class AcyclicNetworkGenerator:
 
 generator = AcyclicNetworkGenerator(params=NetworkParameters())
 generator.visualize_network()
-cost_table = generator.create_cost_table()
-ic(cost_table)

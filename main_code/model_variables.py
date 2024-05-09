@@ -1,20 +1,22 @@
-"""Module for stroing the variables for the optimization model."""
+"""Module for storing the variables for the optimization model."""
+
 from typing import Any
 
 import networkx as nx
 
 
-class NetworkModel:
+class ModelVariables:
     """Class to represent model variables for an acyclic network optimization problem."""
 
     def __init__(self, graph: nx.DiGraph) -> None:
         """Initialize the network model with a given acyclic network graph."""
         self.graph = graph
-        self.NF, self.NNF = self._classify_nodes()
-        self.N = self.NF | self.NNF
-        self.A = set(graph.edges())
+        self.nodes_refuel, self.nodes_not_refuel = self._classify_nodes()
+        self.nodes = self.nodes_refuel | self.nodes_not_refuel
+        self.arcs = set(graph.edges())
         self.cij = self._calculate_edge_costs()
         self.fij = self._extract_fuel_parameters()
+        self.time_steps = self._set_time_periods()
 
     def _classify_nodes(self) -> tuple[set[Any], set[Any]]:
         """
@@ -50,3 +52,7 @@ class NetworkModel:
             Dictionary mapping each edge (u, v) to its fuel parameter.
         """
         return {(u, v): attrs["fuel"] for u, v, attrs in self.graph.edges(data=True)}
+
+    def _set_time_periods(self) -> range:
+        """Set the time periods for the optimization model."""
+        return range(1, len(self.nodes) + 1)
