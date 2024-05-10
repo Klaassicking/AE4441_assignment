@@ -55,13 +55,13 @@ class AcyclicNetworkGenerator:
             for j in range(i + 1, self.params.network_size):
                 if i == 0 or j == self.params.network_size - 1 or i < j:
                     k = j - i
-                    fuel_param = self.generate_fuel_distribution(k)
+                    fuel_param = self._generate_fuel_distribution(k)
                     cost_param = round(random.uniform(a=0.95, b=1.05) * self.params.psi * fuel_param)
                     network.add_edge(nodes[i], nodes[j], fuel=fuel_param, cost=cost_param)
 
         return network
 
-    def generate_fuel_distribution(self, k: int) -> int:
+    def _generate_fuel_distribution(self, k: int) -> int:
         """
         Generate a random fuel distribution parameter for a given distance.
 
@@ -132,5 +132,3 @@ class AcyclicNetworkGenerator:
         return cost_table
 
 
-generator = AcyclicNetworkGenerator(params=NetworkParameters())
-generator.visualize_network()

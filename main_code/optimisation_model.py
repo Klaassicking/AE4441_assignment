@@ -14,20 +14,22 @@ class OptimisationModel:
     def __init__(self) -> None:
         self.model = Model()
         self.params = NetworkParameters()
-        self.network = self._create_network
-        self.variables = self._create_variables
-        self.X, self.F = self._create_decision_variables
+        self.network = self.create_network
+        self.variables = self.create_variables
+        self.X, self.F = self.create_decision_variables
 
     @property
-    def _create_network(self) -> AcyclicNetworkGenerator:
+    def create_network(self) -> AcyclicNetworkGenerator:
+        """Create an acyclic network."""
         return AcyclicNetworkGenerator(params=self.params)
 
     @property
-    def _create_variables(self) -> ModelVariables:
+    def create_variables(self) -> ModelVariables:
+        """Create model variables."""
         return ModelVariables(graph=self.network.G)
 
     @property
-    def _create_decision_variables(self) -> tuple[tupledict, tupledict]:
+    def create_decision_variables(self) -> tuple[tupledict, tupledict]:
         """
         Create decision variables 'x' and 'f' for the optimization model.
 
@@ -115,6 +117,12 @@ class OptimisationModel:
         pass
 
     def _create_constraint_7(self) -> None:
+        """
+        Add a constraint ensuring non-negative fuel levels for each time step.
+
+        This method adds constraints to the optimization model that ensure the fuel levels (`self.F[tau]`)
+        remain non-negative for each time step (`tau`) beyond the first time step.
+        """
         for tau in self.variables.time_steps[1:]:
             self.model.addConstr(
                 self.F[tau] - quicksum(self.variables.fij[i, j] * self.X[i, j, tau] for i, j in self.variables.arcs) >= 0,
@@ -124,6 +132,12 @@ class OptimisationModel:
     # </editor-fold>
 
     def _create_objective(self) -> None:
+        """
+        Set the objective function of the optimization model.
+
+        This method defines the objective function of the optimization model as a minimization problem,
+        composed of a primary cost component (`cost`) and a refueling cost component (`refueling_cost`).
+        """
         cost = self.params.w1 * quicksum(
             self.variables.cij[i, j] * self.X[i, j, t] for (i, j) in self.variables.arcs for t in self.variables.time_steps
         )
@@ -142,6 +156,7 @@ class OptimisationModel:
         self._create_constraint_6()
         self._create_constraint_7()
         self._create_objective()
+
         self.model.optimize()
 
         # Check if the model is infeasible
