@@ -29,8 +29,9 @@ class AcyclicNetworkGenerator:
     def __init__(self, params: NetworkParameters) -> None:
         """Init method for the AcyclicNetworkGenerator class."""
         self.params = params
-        self.G: nx.DiGraph = self.generate_acyclic_network()
+        self.G: nx.DiGraph = self.generate_acyclic_network
 
+    @property
     def generate_acyclic_network(self) -> nx.DiGraph:
         """
         Generate an acyclic network graph based on specified parameters.
@@ -96,6 +97,7 @@ class AcyclicNetworkGenerator:
         nx.draw_networkx_edge_labels(self.G, pos, edge_labels=edge_labels, font_color="powderblue", font_size=7)
         plt.savefig(FIGURE_PATH / "acyclic_network.png")
 
+    @property
     def create_cost_table(self) -> PrettyTable:
         """
         Create a cost table representation of the acyclic network graph.
