@@ -7,7 +7,7 @@ from dataclasses import dataclass
 class NetworkParameters:
     """Parameters for the network model."""
 
-    network_size: int = 20
+    network_size: int = 8
     psi: float = 1600 / 18000
     initial_upper_bound: int = 6000
     fuel_capacity: int = 26000
