@@ -53,6 +53,8 @@ class AcyclicNetworkGenerator:
             else:
                 network.nodes[nodes[i]]["refueling_point"] = False
             for j in range(i + 1, self.params.network_size):
+                # if nodes[i] == 's' and nodes[j] == 't':
+                #     continue
                 if i == 0 or j == self.params.network_size - 1 or i < j:
                     k = j - i
                     fuel_param = self._generate_fuel_distribution(k)
@@ -82,6 +84,7 @@ class AcyclicNetworkGenerator:
         initial_fuel_consumption_rate = 0.9 * self.params.initial_upper_bound
         lower_bound = initial_fuel_consumption_rate
         upper_bound = initial_fuel_consumption_rate
+        # upper_bound = self.params.initial_upper_bound
         for _ in range(1, k):
             upper_bound = initial_fuel_consumption_rate + lower_bound
             lower_bound = 0.9 * upper_bound
