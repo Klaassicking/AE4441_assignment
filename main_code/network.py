@@ -130,5 +130,3 @@ class AcyclicNetworkGenerator:
             cost_table.add_row(row_data)
 
         return cost_table
-
-

@@ -114,7 +114,12 @@ class OptimisationModel:
             )
 
     def _create_constraint_6(self) -> None:
-        pass
+        """Create a constraint ensuring that the fuel level does not exceed the fuel capacity."""
+        for tau in self.variables.time_steps[1:]:
+            self.model.addConstr(
+                self.F[tau] <= self.params.fuel_capacity,
+                name=f"fuel_capacity{tau}",
+            )
 
     def _create_constraint_7(self) -> None:
         """
