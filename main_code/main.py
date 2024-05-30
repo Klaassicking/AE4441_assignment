@@ -2,6 +2,7 @@
 from icecream import ic
 
 from main_code.optimisation_model import OptimisationModel
+
 show_cost_table = True
 show_network_graph = True
 
