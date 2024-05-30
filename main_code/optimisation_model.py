@@ -12,10 +12,10 @@ class OptimisationModel:
     """Class to represent the optimisation model for refueling routing problem."""
 
     def __init__(self) -> None:
-        self.model = Model()
-        self.params = NetworkParameters()
-        self.network = self.create_network
-        self.variables = self.create_variables
+        self.model: Model = Model()
+        self.params: NetworkParameters = NetworkParameters()
+        self.network: AcyclicNetworkGenerator = self.create_network
+        self.variables: ModelVariables = self.create_variables
         self.X, self.F = self.create_decision_variables
 
     @property
