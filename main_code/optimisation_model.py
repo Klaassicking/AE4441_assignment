@@ -5,23 +5,18 @@ from icecream import ic
 
 from main_code.model_variables import ModelVariables
 from main_code.network import AcyclicNetworkGenerator
-from main_code.set_params import NetworkParameters
+from main_code.set_params import SetUpParameters
 
 
 class OptimisationModel:
     """Class to represent the optimisation model for refueling routing problem."""
 
-    def __init__(self) -> None:
+    def __init__(self, network: AcyclicNetworkGenerator, params: SetUpParameters) -> None:
         self.model: Model = Model()
-        self.params: NetworkParameters = NetworkParameters()
-        self.network: AcyclicNetworkGenerator = self.create_network
+        self.params: SetUpParameters = params
+        self.network: AcyclicNetworkGenerator = network
         self.variables: ModelVariables = self.create_variables
         self.X, self.F = self.create_decision_variables
-
-    @property
-    def create_network(self) -> AcyclicNetworkGenerator:
-        """Create an acyclic network."""
-        return AcyclicNetworkGenerator(params=self.params)
 
     @property
     def create_variables(self) -> ModelVariables:

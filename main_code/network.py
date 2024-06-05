@@ -7,7 +7,7 @@ import networkx as nx
 from prettytable import PrettyTable
 
 from exports import FIGURE_PATH
-from main_code.set_params import NetworkParameters
+from main_code.set_params import SetUpParameters
 
 
 class AcyclicNetworkGenerator:
@@ -26,7 +26,7 @@ class AcyclicNetworkGenerator:
         G (nx.DiGraph): The generated acyclic network graph.
     """
 
-    def __init__(self, params: NetworkParameters) -> None:
+    def __init__(self, params: SetUpParameters) -> None:
         """Init method for the AcyclicNetworkGenerator class."""
         self.params = params
         self.G: nx.DiGraph = self.generate_acyclic_network
@@ -43,21 +43,23 @@ class AcyclicNetworkGenerator:
         network = nx.DiGraph()
 
         # Add nodes
-        nodes = ["s", *range(1, self.params.network_size - 2), self.params.network_size - 2, "t"]
+        nodes = ["s", *range(1, self.params.network_size - 1), "t"]
+
         network.add_nodes_from(nodes)
 
-        # Add edges with rounded fuel parameters
-        for i in range(self.params.network_size):
+        # Add edges with rounded fuel parameters, avoiding direct edge from 's' to 't'
+        for i in range(len(nodes)):
             if i % self.params.m == 0:
                 network.nodes[nodes[i]]["refueling_point"] = True
             else:
                 network.nodes[nodes[i]]["refueling_point"] = False
-            for j in range(i + 1, self.params.network_size):
-                if i == 0 or j == self.params.network_size - 1 or i < j:
-                    k = j - i
-                    fuel_param = self._generate_fuel_distribution(k)
-                    cost_param = round(random.uniform(a=0.95, b=1.05) * self.params.psi * fuel_param)
-                    network.add_edge(nodes[i], nodes[j], fuel=fuel_param, cost=cost_param)
+            for j in range(i + 1, len(nodes)):
+                if nodes[i] == "s" and nodes[j] == "t":
+                    continue  # Skip adding direct edge between 's' and 't'
+                k = j - i
+                fuel_param = self._generate_fuel_distribution(k)
+                cost_param = round(random.uniform(0.95, 1.05) * self.params.psi * fuel_param)
+                network.add_edge(nodes[i], nodes[j], fuel=fuel_param, cost=cost_param)
 
         return network
 
