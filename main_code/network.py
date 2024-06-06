@@ -84,6 +84,8 @@ class AcyclicNetworkGenerator:
         initial_fuel_consumption_rate = 0.9 * self.params.initial_upper_bound
         lower_bound = initial_fuel_consumption_rate
         upper_bound = initial_fuel_consumption_rate
+        if k == 1:
+            return round(random.uniform(lower_bound, self.params.initial_upper_bound))
         for _ in range(1, k):
             upper_bound = initial_fuel_consumption_rate + lower_bound
             lower_bound = 0.9 * upper_bound
