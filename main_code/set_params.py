@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class NetworkParameters:
+class SetUpParameters:
     """Parameters for the network model."""
 
     network_size: int = 7
