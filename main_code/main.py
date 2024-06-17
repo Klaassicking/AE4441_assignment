@@ -1,8 +1,11 @@
 """Module for main code."""
+import numpy as np
+from gurobipy import Model
 from icecream import ic
 
 from main_code.network import AcyclicNetworkGenerator
 from main_code.optimisation_model import OptimisationModel
+from main_code.results import ShowResults
 from main_code.set_params import SetUpParameters
 
 # Global variables to control the display of cost table and network graph
@@ -35,11 +38,11 @@ class Main:
         cost_table = self.network.create_cost_table
         ic(cost_table)
 
-    def solve_optimisation_model(self) -> None:
+    def solve_optimisation_model(self) -> Model:
         """Solve the optimisation model."""
         optimisation_model = OptimisationModel(network=self.network, params=self.params)
-        optimisation_model.solve()
-        optimisation_model.results()
+        return optimisation_model.solve()
+        # return optimisation_model.results()
 
 
 if __name__ == "__main__":
@@ -52,4 +55,9 @@ if __name__ == "__main__":
         main.show_cost_table()
     # Solve the optimisation model if the flag is set
     if solve:
-        main.solve_optimisation_model()
+        model = main.solve_optimisation_model()
+        results = ShowResults(solved_model=model)
+        results.show_results()
+        route = results.get_route()
+        ic(route)
+

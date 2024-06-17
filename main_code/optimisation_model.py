@@ -38,13 +38,14 @@ class OptimisationModel:
         return x, f
 
     # <editor-fold desc="Path finding constraints">
-    def _create_constraint_1(self) -> None:
+    @staticmethod
+    def create_constraint_1(model: Model, variables: ModelVariables, x: tupledict) -> None:
         """Create constraint ensuring exactly one starting node 's' at time step 1, and no starting nodes 's' at other time steps."""
-        for tau in self.variables.time_steps:
-            self.model.addConstr(
-                quicksum(self.X["s", j, tau] for j in self.variables.nodes if ("s", j) in self.variables.arcs) == 1
+        for tau in variables.time_steps:
+            model.addConstr(
+                quicksum(x["s", j, tau] for j in variables.nodes if ("s", j) in variables.arcs) == 1
                 if tau == 1
-                else quicksum(self.X["s", j, tau] for j in self.variables.nodes if ("s", j) in self.variables.arcs) == 0,
+                else quicksum(x["s", j, tau] for j in variables.nodes if ("s", j) in variables.arcs) == 0,
                 name="Start_node_s",
             )
 
@@ -146,9 +147,9 @@ class OptimisationModel:
         )
         self.model.setObjective(cost + refueling_cost, GRB.MINIMIZE)
 
-    def solve(self) -> None:
+    def solve(self) -> Model:
         """Solve the optimisation model."""
-        self._create_constraint_1()
+        self.create_constraint_1(model=self.model, variables=self.variables, x=self.X)
         self._create_constraint_2()
         self._create_constraint_3()
         self._create_constraint_4()
@@ -163,6 +164,8 @@ class OptimisationModel:
         if self.model.status == GRB.Status.INFEASIBLE:
             msg = "Model is infeasible."
             raise ValueError(msg)
+
+        return self.model
 
     def results(self) -> None:
         """Print the results of the optimisation model."""
