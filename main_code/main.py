@@ -1,5 +1,4 @@
 """Module for main code."""
-import numpy as np
 from gurobipy import Model
 from icecream import ic
 
@@ -23,11 +22,18 @@ class Main:
         self.params: SetUpParameters = SetUpParameters()
         # Create the network
         self.network: AcyclicNetworkGenerator = self.create_network
+        self.optimisation_model: OptimisationModel = self.set_up_optimisation_model
+        self.model_variables = self.optimisation_model.variables
 
     @property
     def create_network(self) -> AcyclicNetworkGenerator:
         """Create and return an acyclic network."""
         return AcyclicNetworkGenerator(params=self.params)
+
+    @property
+    def set_up_optimisation_model(self) -> OptimisationModel:
+        """Set up the optimisation model."""
+        return OptimisationModel(network=self.network, params=self.params)
 
     def visualise_network(self) -> None:
         """Visualise the acyclic network."""
@@ -40,9 +46,13 @@ class Main:
 
     def solve_optimisation_model(self) -> Model:
         """Solve the optimisation model."""
-        optimisation_model = OptimisationModel(network=self.network, params=self.params)
-        return optimisation_model.solve()
-        # return optimisation_model.results()
+        return self.optimisation_model.solve()
+
+    def get_results(self) -> ShowResults:
+        """Get the results of the optimisation model."""
+        return ShowResults(
+            solved_model=self.solve_optimisation_model(), params=self.params, network=self.network, model_variables=self.model_variables
+        )
 
 
 if __name__ == "__main__":
@@ -50,14 +60,12 @@ if __name__ == "__main__":
     # Show network graph if the flag is set
     if show_network_graph:
         main.visualise_network()
+
     # Show cost table if the flag is set
     if show_cost_table:
         main.show_cost_table()
     # Solve the optimisation model if the flag is set
     if solve:
-        model = main.solve_optimisation_model()
-        results = ShowResults(solved_model=model)
+        results = main.get_results()
         results.show_results()
-        route = results.get_route()
-        ic(route)
-
+        results.plot_route_data()

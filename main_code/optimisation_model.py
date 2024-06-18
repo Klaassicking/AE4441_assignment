@@ -105,7 +105,11 @@ class OptimisationModel:
                 self.F[tau]
                 <= self.F[tau - 1]
                 - quicksum(self.variables.fij[i, j] * self.X[i, j, tau - 1] for i, j in self.variables.arcs if j in self.variables.nodes)
-                + quicksum(self.params.fuel_capacity * self.X[i, j, tau - 1] for i, j in self.variables.arcs if j in self.variables.nodes_refuel),
+                + quicksum(
+                    (self.params.fuel_capacity - self.variables.fij[(i, j)]) * self.X[i, j, tau - 1]
+                    for i, j in self.variables.arcs
+                    if j in self.variables.nodes_refuel
+                ),
                 name=f"fuel_evolution_{tau}",
             )
 
