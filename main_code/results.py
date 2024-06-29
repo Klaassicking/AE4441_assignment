@@ -5,7 +5,6 @@ import networkx as nx
 from gurobipy import GRB, Model
 from icecream import ic
 from matplotlib import pyplot as plt
-from matplotlib.ticker import FuncFormatter
 
 from main_code.model_variables import ModelVariables
 from main_code.network import AcyclicNetworkGenerator
@@ -109,9 +108,9 @@ class ShowResults:
             arrowsize=20,
             ax=ax,
         )
+
         nx.draw_networkx_edge_labels(G=route_graph, pos=pos, edge_labels=edge_labels, font_color="red")
         ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
-        ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f"{int(x):,}"))
         plt.xlabel("Time Steps")
         plt.ylabel("Fuel Levels [pounds]")
         plt.title("Optimal Route")

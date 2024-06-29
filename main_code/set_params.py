@@ -13,6 +13,6 @@ class SetUpParameters:
     fuel_capacity: int = 30000
     w1: int = 1  # Weight for cost
     w2: int = 100  # Weight for refueling cost
-    m: int = 3  # Lexicographic frequency
+    m: int = 4  # Lexicographic frequency
     e: float = 0.01  # Epsilon, optimality tolerance
     max_time: int = 3600  # Max CPU time in seconds
