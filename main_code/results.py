@@ -114,4 +114,6 @@ class ShowResults:
         plt.xlabel("Time Steps")
         plt.ylabel("Fuel Levels [pounds]")
         plt.title("Optimal Route")
+        ax.grid(True)  # Add grid
+        ax.axis("on")  # Ensure axes are visible
         plt.show()

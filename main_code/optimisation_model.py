@@ -104,12 +104,8 @@ class OptimisationModel:
             self.model.addConstr(
                 self.F[tau]
                 <= self.F[tau - 1]
-                - quicksum(self.variables.fij[i, j] * self.X[i, j, tau - 1] for i, j in self.variables.arcs if j in self.variables.nodes)
-                + quicksum(
-                    (self.params.fuel_capacity - self.variables.fij[(i, j)]) * self.X[i, j, tau - 1]
-                    for i, j in self.variables.arcs
-                    if j in self.variables.nodes_refuel
-                ),
+                - quicksum(self.variables.fij[i, j] * self.X[i, j, tau - 1] for i, j in self.variables.arcs)
+                + quicksum(self.params.fuel_capacity * self.X[i, j, tau - 1] for i, j in self.variables.arcs if j in self.variables.nodes_refuel),
                 name=f"fuel_evolution_{tau}",
             )
 
@@ -118,7 +114,7 @@ class OptimisationModel:
         for tau in self.variables.time_steps[1:]:
             self.model.addConstr(
                 self.F[tau] <= self.params.fuel_capacity,
-                name=f"fuel_capacity{tau}",
+                name=f"fuel_capacity_{tau}",
             )
 
     def _create_constraint_7(self) -> None:
@@ -130,8 +126,16 @@ class OptimisationModel:
         """
         for tau in self.variables.time_steps[1:]:
             self.model.addConstr(
-                self.F[tau] - quicksum(self.variables.fij[i, j] * self.X[i, j, tau] for i, j in self.variables.arcs) >= 0,
+                self.F[tau] >= 0,
                 name=f"fuel_non_negative_{tau}",
+            )
+
+    def _create_constraint_8(self) -> None:
+        """Add a constraint ensuring enough fuel for each time step."""
+        for tau in self.variables.time_steps[1:]:
+            self.model.addConstr(
+                self.F[tau - 1] >= quicksum(self.variables.fij[i, j] * self.X[i, j, tau - 1] for i, j in self.variables.arcs),
+                name=f"enough_fuel_{tau}",
             )
 
     # </editor-fold>
@@ -160,6 +164,7 @@ class OptimisationModel:
         self._create_constraint_5()
         self._create_constraint_6()
         self._create_constraint_7()
+        self._create_constraint_8()
         self._create_objective()
 
         self.model.optimize()
