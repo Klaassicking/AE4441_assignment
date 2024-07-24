@@ -9,6 +9,8 @@ from prettytable import PrettyTable
 from exports import FIGURE_PATH
 from main_code.set_params import SetUpParameters
 
+random.seed(42)
+
 
 class AcyclicNetworkGenerator:
     """

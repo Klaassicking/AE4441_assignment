@@ -1,6 +1,6 @@
 """Module for storing the variables for the optimization model."""
 
-from typing import Any, List
+from typing import Any
 
 import networkx as nx
 
@@ -57,6 +57,6 @@ class ModelVariables:
         return {(u, v): attrs["fuel"] for u, v, attrs in self.graph.edges(data=True)}
 
     @property
-    def set_time_periods(self) -> List[int]:
+    def set_time_periods(self) -> list[int]:
         """Set the time periods for the optimization model."""
         return list(range(1, len(self.nodes) + 1))

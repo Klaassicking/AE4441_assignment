@@ -8,18 +8,18 @@ from main_code.results import ShowResults
 from main_code.set_params import SetUpParameters
 
 # Global variables to control the display of cost table and network graph
-show_cost_table = True
-show_network_graph = True
+show_cost_table = False
+show_network_graph = False
 solve = True
 
 
 class Main:
     """Main class for the project."""
 
-    def __init__(self) -> None:
+    def __init__(self, params: SetUpParameters) -> None:
         """Init method for the Main class."""
         # Initialize network parameters
-        self.params: SetUpParameters = SetUpParameters()
+        self.params = params
         # Create the network
         self.network: AcyclicNetworkGenerator = self.create_network
         self.optimisation_model: OptimisationModel = self.set_up_optimisation_model
@@ -50,13 +50,14 @@ class Main:
 
     def get_results(self) -> ShowResults:
         """Get the results of the optimisation model."""
+        ic(self.params)
         return ShowResults(
             solved_model=self.solve_optimisation_model(), params=self.params, network=self.network, model_variables=self.model_variables
         )
 
 
 if __name__ == "__main__":
-    main = Main()
+    main = Main(params=SetUpParameters())
     # Show network graph if the flag is set
     if show_network_graph:
         main.visualise_network()
