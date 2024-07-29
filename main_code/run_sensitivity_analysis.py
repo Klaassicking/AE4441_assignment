@@ -35,4 +35,4 @@ results_df.to_csv("sensitivity_analysis_results.csv", index=False)
 ic(results_df)
 
 # Plot the results
-sensitivity_analysis.plot_results(results_df)
+sensitivity_analysis.plot_results(df=results_df, exclude_params=["network_size", "max_time"])

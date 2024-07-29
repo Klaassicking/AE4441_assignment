@@ -122,54 +122,51 @@ class SensitivityAnalysis:
         fig, ax1 = plt.subplots(figsize=(10, 6))
 
         colors = ["tab:blue", "tab:orange", "tab:green", "tab:red", "tab:purple", "tab:brown", "tab:pink", "tab:gray", "tab:olive", "tab:cyan"]
-        ax = ax1
+        lines = []
+        labels = []
 
         for i, data in enumerate(data_list):
-            dataframe = pd.DataFrame(data)
+            dataframe = pd.DataFrame(data, columns=["param_name", "param_value", "objective_value"])
 
             if i == 0:
                 # Primary x-axis
                 ax1.set_xlabel(f"{dataframe['param_name'].iloc[0]} param_value")
-                ax1.set_ylabel("objective_value", color=colors[i % len(colors)])
-                ax1.plot(
+                ax1.set_ylabel("Objective value", color=colors[i % len(colors)])
+                (line,) = ax1.plot(
                     dataframe["param_value"],
                     dataframe["objective_value"],
                     marker="o",
-                    label=f"Objective Value ({dataframe['param_name'].iloc[0]})",
+                    label=f"{dataframe['param_name'].iloc[0]}",
                     color=colors[i % len(colors)],
                 )
                 ax1.tick_params(axis="y", labelcolor=colors[i % len(colors)])
-                ax1.legend(loc="upper left")
 
+                # Creating a secondary y-axis for 'difference'
                 ax2 = ax1.twinx()
                 color = "tab:red"
-                ax2.set_ylabel("difference", color=color)
+                ax2.set_ylabel("Difference", color=color)
                 ax2.tick_params(axis="y", labelcolor=color)
-                ax2.legend(loc="upper right")
 
             else:
                 # Secondary x-axis
                 ax = ax1.twiny()
-                ax.spines["top"].set_position(("outward", 60 * i))
+                ax.spines["top"].set_position(("outward", 30 * i))
                 ax.set_xlabel(f"{dataframe['param_name'].iloc[0]} param_value", color=colors[i % len(colors)])
-                ax.plot(
+                (line,) = ax.plot(
                     dataframe["param_value"],
                     dataframe["objective_value"],
                     marker="o",
-                    label=f"Objective Value ({dataframe['param_name'].iloc[0]})",
+                    label=f"{dataframe['param_name'].iloc[0]}",
                     color=colors[i % len(colors)],
                 )
                 ax.tick_params(axis="x", labelcolor=colors[i % len(colors)])
-                ax.legend(loc="upper right")
 
-                ax2 = ax1.twinx()
-                color = "tab:red"
-                ax2.set_ylabel("difference", color=color)
-                ax2.tick_params(axis="y", labelcolor=color)
-                ax2.legend(loc="upper right")
+            lines.append(line)
+            labels.append(f"{dataframe['param_name'].iloc[0]}")
 
+        # Creating a single legend for all lines
+        fig.legend(lines, labels, bbox_to_anchor=(0.2, 0.7), loc="center")
         fig.tight_layout()
-        plt.title("Param Value vs. Objective Value for multiple parameters")
         plt.show()
 
     def plot_results(self, df: pd.DataFrame, exclude_params: list[str] | None = None) -> None:
@@ -186,7 +183,7 @@ class SensitivityAnalysis:
             exclude_params = []
         data_list = []
         for param_name in df["param_name"].unique():
-            if param_name not in exclude_params:
+            if param_name not in exclude_params and df[df["param_name"] == param_name]["difference"].sum() != 0:
                 data_list.append(df[df["param_name"] == param_name])
             max_length = 3
             if len(data_list) == max_length:
