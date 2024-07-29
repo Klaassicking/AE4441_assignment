@@ -3,7 +3,6 @@ import random
 
 import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
 from gurobipy import GRB
 from icecream import ic
 from main import Main
@@ -117,30 +116,79 @@ class SensitivityAnalysis:
                 results.append({"param_name": param_name, "param_value": value, "objective_value": obj_val, "difference": percentual_change})
         return pd.DataFrame(results)
 
-    def plot_results(self, df: pd.DataFrame) -> None:
+    @staticmethod
+    def _plot_multiple_data(data_list: list[tuple[float, float, float]]) -> None:
+        """Plot multiple data on the same plot."""
+        fig, ax1 = plt.subplots(figsize=(10, 6))
+
+        colors = ["tab:blue", "tab:orange", "tab:green", "tab:red", "tab:purple", "tab:brown", "tab:pink", "tab:gray", "tab:olive", "tab:cyan"]
+        ax = ax1
+
+        for i, data in enumerate(data_list):
+            dataframe = pd.DataFrame(data)
+
+            if i == 0:
+                # Primary x-axis
+                ax1.set_xlabel(f"{dataframe['param_name'].iloc[0]} param_value")
+                ax1.set_ylabel("objective_value", color=colors[i % len(colors)])
+                ax1.plot(
+                    dataframe["param_value"],
+                    dataframe["objective_value"],
+                    marker="o",
+                    label=f"Objective Value ({dataframe['param_name'].iloc[0]})",
+                    color=colors[i % len(colors)],
+                )
+                ax1.tick_params(axis="y", labelcolor=colors[i % len(colors)])
+                ax1.legend(loc="upper left")
+
+                ax2 = ax1.twinx()
+                color = "tab:red"
+                ax2.set_ylabel("difference", color=color)
+                ax2.tick_params(axis="y", labelcolor=color)
+                ax2.legend(loc="upper right")
+
+            else:
+                # Secondary x-axis
+                ax = ax1.twiny()
+                ax.spines["top"].set_position(("outward", 60 * i))
+                ax.set_xlabel(f"{dataframe['param_name'].iloc[0]} param_value", color=colors[i % len(colors)])
+                ax.plot(
+                    dataframe["param_value"],
+                    dataframe["objective_value"],
+                    marker="o",
+                    label=f"Objective Value ({dataframe['param_name'].iloc[0]})",
+                    color=colors[i % len(colors)],
+                )
+                ax.tick_params(axis="x", labelcolor=colors[i % len(colors)])
+                ax.legend(loc="upper right")
+
+                ax2 = ax1.twinx()
+                color = "tab:red"
+                ax2.set_ylabel("difference", color=color)
+                ax2.tick_params(axis="y", labelcolor=color)
+                ax2.legend(loc="upper right")
+
+        fig.tight_layout()
+        plt.title("Param Value vs. Objective Value for multiple parameters")
+        plt.show()
+
+    def plot_results(self, df: pd.DataFrame, exclude_params: list[str] | None = None) -> None:
         """Plot the results of the sensitivity analysis.
 
         Parameters
         ----------
         df : pd.DataFrame
             DataFrame containing the results of the sensitivity analysis.
+        exclude_params : list, optional
+            List of parameters to exclude from the plot, by default None.
         """
+        if exclude_params is None:
+            exclude_params = []
+        data_list = []
         for param_name in df["param_name"].unique():
-            param_df = df[df["param_name"] == param_name]
-            fig, ax1 = plt.subplots(figsize=(10, 6))
-
-            sns.lineplot(data=param_df, x="param_value", y="objective_value", marker="o", ax=ax1, color="b", label="Objective Value")
-            ax1.set_xlabel(param_name)
-            ax1.set_ylabel("Objective Value", color="b")
-            ax1.tick_params(axis="y", labelcolor="b")
-
-            ax2 = ax1.twinx()
-            sns.lineplot(data=param_df, x="param_value", y="difference", marker="x", ax=ax2, color="r", label="Difference (%)")
-            ax2.set_ylabel("Difference (%)", color="r")
-            ax2.tick_params(axis="y", labelcolor="r")
-
-            fig.suptitle(f"Sensitivity Analysis for {param_name}")
-            fig.tight_layout()
-            fig.legend(loc="upper left", bbox_to_anchor=(0.1, 0.9), bbox_transform=ax1.transAxes)
-            plt.grid(True)
-            plt.show()
+            if param_name not in exclude_params:
+                data_list.append(df[df["param_name"] == param_name])
+            max_length = 3
+            if len(data_list) == max_length:
+                self._plot_multiple_data(data_list)
+                data_list = []
